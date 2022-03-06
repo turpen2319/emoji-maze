@@ -1,0 +1,67 @@
+/* * {
+    box-sizing: border-box;
+    font-family: helvetica;
+} */
+
+html, body {
+    height: 100vh;
+    margin: 0;
+}
+
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+#board {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    max-width: 80%;
+    height: 70%;
+    
+
+    border: 2px solid;
+}
+/* fixed aspect-ratio maintains order of each square */
+
+.square {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+
+    /* margin: 0; 
+    border: -1px;*/
+    outline: solid 1px;
+    outline-offset: -2px;
+    height: 12.5%;
+    width: 10%;
+    /* min-width: 0; */
+    aspect-ratio: 1/1;
+    background-color: darkgray;
+}
+/* height & width depend on number of elements...if 80 els, h:12.5% w:10% will allow 8 rows of 10... */
+
+
+.available {
+    background-color: white;
+}
+
+#player, #goal {
+    font-size: 4vw;
+}
+
+.frustrated {
+    animation: shake 0.1s;
+
+}
+
+@keyframes shake {
+    0% {transform: translate(10%, 0);}
+    50% {transform: translate(-10%, 0);}
+    100% {transform: translate(10%, 0);}
+}
