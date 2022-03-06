@@ -35,13 +35,13 @@ const SquaresGraph = new Graph();
 
 /*----- cached element references -----*/
 const $board = $('#board');  //div containing square divs...player can occupy one square at a time if the square is available
-fillBoardWithSquares(80);
+//fillBoardWithSquares(160);
 
 const $player = $(`<div id="player" >🤠</div>`);
 $('#0').append($player); //starting position
 
 const $goal = $('<div id="goal" >🐄</div>')
-$('#79').append($goal);
+$('#159').append($goal);
 
 /*----- app's state (variables) -----*/
 let $currentSquare = $player.parent();
@@ -59,7 +59,7 @@ let time = startTimer();
 
 function fillBoardWithSquares(numSquares) {
     for (let i = 0; i < numSquares; i++) {
-        const $newSquareEl = $(`<div id="${i}" class="square available">${i}</div>`)
+        const $newSquareEl = $(`<div id="${i}" class="square">${i}</div>`)
         console.log({$newSquareEl})
         $board.append($newSquareEl);
     }
@@ -154,9 +154,10 @@ function startTimer(minutes = 2) {
 // }
 
 function moveLeft() {
-    const $leftOfCurrent = $(`#${Number($currentSquare.attr('id')) - 1}`);
+    const currentID = Number($currentSquare.attr('id'));
+    const $leftOfCurrent = $(`#${currentID - 1}`);
 
-    if ($leftOfCurrent.hasClass('available')) {
+    if (currentID % 16 !== 0 && $leftOfCurrent.hasClass('available')) {
         $currentSquare = $leftOfCurrent;
         $currentSquare.append($player);
     } else {
@@ -169,10 +170,11 @@ function moveLeft() {
 }
 
 function moveRight() {
-    const $rightOfCurrent = $(`#${Number($currentSquare.attr('id')) + 1}`);
+    const currentID = Number($currentSquare.attr('id'));
+    const $rightOfCurrent = $(`#${currentID + 1}`);
 
     console.log($rightOfCurrent)
-    if ($rightOfCurrent.hasClass('available')) {
+    if ((currentID + 1) % 16 !== 0 && $rightOfCurrent.hasClass('available')) {
         $currentSquare = $rightOfCurrent;
         $currentSquare.append($player);
     } else {
@@ -186,7 +188,7 @@ function moveRight() {
 }
 
 function moveUp() {
-    const $aboveCurrent = $(`#${Number($currentSquare.attr('id')) - 10}`);
+    const $aboveCurrent = $(`#${Number($currentSquare.attr('id')) - 16}`);
 
     console.log($aboveCurrent)
     if ($aboveCurrent.hasClass('available')) {
@@ -202,7 +204,7 @@ function moveUp() {
 }
 
 function moveDown() {
-    const $belowCurrent = $(`#${Number($currentSquare.attr('id')) + 10}`);
+    const $belowCurrent = $(`#${Number($currentSquare.attr('id')) + 16}`);
 
     console.log($belowCurrent)
     if ($belowCurrent.hasClass('available')) {
@@ -222,7 +224,7 @@ function resetGame() {
 }
 
 function checkWin() {
-    if
+    //if
     
 }
 

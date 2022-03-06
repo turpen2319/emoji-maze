@@ -36,10 +36,10 @@ body {
 
     /* margin: 0; 
     border: -1px;*/
-    outline: solid 1px;
+    outline: solid 1px ;
     outline-offset: -2px;
-    height: 12.5%;
-    width: 10%;
+    height: 10%;
+    width: 6.25%;
     /* min-width: 0; */
     aspect-ratio: 1/1;
     background-color: darkgray;
@@ -52,7 +52,7 @@ body {
 }
 
 #player, #goal {
-    font-size: 4vw;
+    font-size: 3vw;
 }
 
 .frustrated {
