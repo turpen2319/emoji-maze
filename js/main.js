@@ -32,28 +32,26 @@ class Graph {
 }
 const SquaresGraph = new Graph();
 
+const startID = 0;
+const goalIDs = [159, 117, 128, 15, 32];
 
 /*----- cached element references -----*/
-const $board = $('#board');  //div containing square divs...player can occupy one square at a time if the square is available
-//fillBoardWithSquares(160);
+const $board = $('#board');
+
+const $startSquare = $('#' + startID);
 
 const $player = $(`<div id="player" >🤠</div>`);
-$('#0').append($player); //starting position
+//$('#0').append($player); //starting position
 
-const $goal = $('<div id="goal" >🐄</div>')
-$('#159').append($goal);
+const $goalEmoji = $('<div id="goal" >🐄</div>')
+//$('#159').append($goalEmoji);
 
 /*----- app's state (variables) -----*/
-let $currentSquare = $player.parent();
-let $goalSquare = setGoalPosition();
-let $startSquare = setStartPosition();
-let solved = false;
-let time = startTimer();
+let $currentSquare //= $player.parent();
+let $goalSquare //= $(`#${setGoalPosition()}`);
 
-// const $leftOfCurrent = $(`#${Number($currentSquare.attr('id')) - 1}`);
-// const $rightOfCurrent = $(`#${Number($currentSquare.attr('id')) + 1}`);
-// const $aboveCurrent = $(`#${Number($currentSquare.attr('id')) - 10}`); //the 10s for above & below only works on boards where there are rows of 10...just add/subtract numColumns to/from current to make it dynamic
-// const $belowCurrent = $(`#${Number($currentSquare.attr('id')) + 10}`);
+let solved = null;
+let timeLeft = 60;
 
 /*----- dynamically building board -----*/
 
@@ -73,8 +71,6 @@ $board.on('click', '.square', function(evt) { //disable this event listener once
 })
 
 
- 
-
 /*----- event listeners -----*/
 $(document).keydown(function(evt) {
     $player.removeClass("frustrated"); //clears 'frustrated' class if there is one
@@ -92,6 +88,8 @@ $(document).keydown(function(evt) {
     } else {
         console.log("This key was pressed: " + key)
     }
+
+    render();
 })
 
 
@@ -106,14 +104,23 @@ function setGoalEmoji() {
 }
 
 function init() {
+    solved = false;
+    //seconds = 60;
 
+    $goalSquare = setGoalPosition();
+    $goalSquare.append($goalEmoji);
+    $startSquare.append($player);
+
+    render();
+
+    startTimer(timeLeft);
 }
 
 function buildGraph() {
     //for each square on the board, SquaresGraph.addVertex(square's id)
 
     //check square by square if surrounding squares are 'available'
-    //if an adjacent square is available, and an edje doesn't
+    //if an adjacent square is available, and an edge doesn't
     //already exist, then add an edge between the two 
     //in an
     
@@ -121,7 +128,17 @@ function buildGraph() {
 }
 
 function render() {
+    
+    $currentSquare = $player.parent(); //update currentSquare upon init & after each arrowkey down
 
+    checkSolved();
+
+
+    if (solved) {
+        console.log(`You solved it with ${timeLeft} seconds to spare!`)
+    } else {
+        console.log('blah')
+    }
     //if time === 0, you lose
     //if $goalSquare === $current, you win
 }
@@ -130,12 +147,31 @@ function setStartPosition() {
 
 }
 
-function setGoalPosition() {
-    //randomly chooses goal from an array of 5(?) predetermined positions
+function setGoalPosition(squareID) {
+    if (squareID) {
+        return squareID;
+    }
+   
+    return $("#" + goalIDs[[Math.floor(Math.random()*goalIDs.length)]])
 }
 
-function startTimer(minutes = 2) {
-    //starts the countdown
+function startTimer(seconds = 60) {
+    if(seconds === 0) {
+        //disable keydown listener
+        console.log("You lose!")
+        return seconds;
+    } else if (solved) {
+        return seconds;
+    }
+
+    timeLeft = seconds;
+    console.log(seconds);
+    seconds--;
+
+    setTimeout(() => {
+        return startTimer(seconds);
+    }, 1000);
+
 }
 
 // function movePlayer($desiredSquare) {
@@ -223,11 +259,19 @@ function resetGame() {
     
 }
 
-function checkWin() {
-    //if
+function checkSolved() {
+    if ($currentSquare.attr('id') === $goalSquare.attr('id')) {
+        solved = true;
+    } else {
+        solved = false;
+    }
     
 }
 
 function promptRotateMobileDevice () {
 
 }
+
+
+//Starts the game
+init();
