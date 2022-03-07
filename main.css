@@ -9,19 +9,84 @@ html, body {
 }
 
 
-body {
+body, header {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
 
+header {
+    height: fit-content;
+    margin-bottom: 10px;
+}
+
+footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    /* height: 15%; */
+    margin: 10px;
+    height: fit-content;
+    max-height: 25%;
+}
+
+
+/* flexbox */
+.arrows {
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    font-size: 5vh;
+    width: fit-content;
+    max-height: 100%;
+}
+
+.up-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
+
+}
+
+/* no idea why this is the only selector that works... */
+body > footer > div > div.left-down-right-container {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+/* div.left-right-down-container {
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
+    width: 100%;
+} */
+
+
+#down {
+    padding-right: 10px;
+}
+
+#left {
+   padding-right: 10px;   
+}
+
+
 #board {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    max-width: 80%;
-    height: 70%;
+    max-width: 90%;
+    height: 65%;
     
 
     border: 2px solid;

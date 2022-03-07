@@ -46,6 +46,12 @@ const $player = $(`<div id="player" >🤠</div>`);
 const $goalEmoji = $('<div id="goal" >🐄</div>')
 //$('#159').append($goalEmoji);
 
+const $startButton = $('#start')
+
+const $playAgainButton = $('<button id="play-again">Play Again</button>')
+const $subHeading = $('.subheading')
+const $timer = $('<p id="timer"></p>')
+
 /*----- app's state (variables) -----*/
 let $currentSquare //= $player.parent();
 let $goalSquare //= $(`#${setGoalPosition()}`);
@@ -92,6 +98,30 @@ $(document).keydown(function(evt) {
     render();
 })
 
+$('.arrows').on('click', '.arrow', function(evt) {
+    $player.removeClass("frustrated"); //clears 'frustrated' class if there is one
+    console.log(this)
+
+    if (this.id === 'left') {
+        moveLeft();
+    } else if (this.id === 'right') {
+        moveRight();
+    } else  if (this.id === 'up') {
+        moveUp();
+    } else if (this.id === 'down') {
+        moveDown();
+    } else {
+        console.log("This key was clicked: " + this)
+    }
+
+    render();
+})
+
+$($startButton).click(init)
+$($subHeading).on('click', '#play-again', function() {
+    console.log(this)
+    init()
+});
 
 /*----- functions -----*/
 
@@ -105,13 +135,14 @@ function setGoalEmoji() {
 
 function init() {
     solved = false;
-    //seconds = 60;
+    timeLeft = 60;
 
     $goalSquare = setGoalPosition();
     $goalSquare.append($goalEmoji);
     $startSquare.append($player);
 
     render();
+
 
     startTimer(timeLeft);
 }
@@ -120,7 +151,7 @@ function buildGraph() {
     //for each square on the board, SquaresGraph.addVertex(square's id)
 
     //check square by square if surrounding squares are 'available'
-    //if an adjacent square is available, and an edge doesn't
+    //if an adjacent square is available, and if an edge doesn't
     //already exist, then add an edge between the two 
     //in an
     
@@ -131,13 +162,18 @@ function render() {
     
     $currentSquare = $player.parent(); //update currentSquare upon init & after each arrowkey down
 
-    checkSolved();
+    if(solved !== true) checkSolved(); //this conditional check allows player to freeroam after they've already won without updating the status of 'solved'
 
 
     if (solved) {
-        console.log(`You solved it with ${timeLeft} seconds to spare!`)
+        $('h1').text(`You solved it with ${timeLeft} seconds to spare!`)
+        $timer.remove();
+        $subHeading.append($playAgainButton);
+        console.log()
     } else {
-        console.log('blah')
+        $startButton.remove();
+        $playAgainButton.remove();
+        $subHeading.append($timer);
     }
     //if time === 0, you lose
     //if $goalSquare === $current, you win
@@ -156,6 +192,7 @@ function setGoalPosition(squareID) {
 }
 
 function startTimer(seconds = 60) {
+
     if(seconds === 0) {
         //disable keydown listener
         console.log("You lose!")
@@ -165,6 +202,7 @@ function startTimer(seconds = 60) {
     }
 
     timeLeft = seconds;
+    $timer.text(timeLeft);
     console.log(seconds);
     seconds--;
 
@@ -274,4 +312,4 @@ function promptRotateMobileDevice () {
 
 
 //Starts the game
-init();
+//init();
