@@ -28,12 +28,78 @@ class Graph {
         } 
         console.log(node + "-->" + connections); 
       } 
-    } 
-}
-const SquaresGraph = new Graph();
+    }
+    depthFirstSearch(node = 0, searchedNode, pathList = [], visitedNodes = []) {
+        //Go as far as possible down one path. Don't go to nodes we've already visited unless we have to backtrack.
+        //If dead end, we have to revisit nodes, checking their adjacentList, until you find a node you haven't visited.
+        //Don't include those dead-end nodes in the path.
+        let currentAdjacentList = this.adjacentList[node];
+        if (currentAdjacentList) { //only seach through available nodes
 
+            if (node === searchedNode) { //base case
+                pathList.push(node);
+                return;
+            }
+
+            
+            
+            visitedNodes.push(node);
+            //pathList.push(node)
+
+            let nextUnseenNode = null;
+            
+            for(let adjacentNode of currentAdjacentList) {
+                if (!visitedNodes.includes(adjacentNode)) {
+                    nextUnseenNode = adjacentNode;
+                    break;
+                }
+            }
+
+            //console.log(pathList)
+            //console.log({node, nextUnseenNode, visitedNodes})
+
+            if (!nextUnseenNode) {
+                //backtrack
+                nextUnseenNode = this.backtrack(node, currentAdjacentList, visitedNodes, pathList);
+                //console.log({backtrack: nextUnseenNode})
+            } else {
+                pathList.push(node);
+            }
+            
+            this.depthFirstSearch(nextUnseenNode, searchedNode, pathList, visitedNodes)
+        }
+        return pathList;
+    }
+    
+    //This should stop once it reaches a node that is adjacent to an unseen node.
+    //...then it returns that unseen node, not the current node
+    backtrack(currentNode, backtrackAdjacentList, visitedNodes, pathList) { 
+        //console.log({backtrackAdjacentList})
+        
+        pathList.pop();
+
+        for (let i of backtrackAdjacentList) { //looks through nodes adjacent to current node
+            for (let j of this.adjacentList[i]) { //checks if there are unseen nodes adjacent to those nodes
+                if (!visitedNodes.includes(j)) {
+                    //pathList.pop();
+                    return j;
+                }
+            }
+        }
+        
+        const previousNode = pathList[pathList.length - 1]
+        
+    
+        return this.backtrack(previousNode, this.adjacentList[previousNode], visitedNodes, pathList) //run the same check on the previous node
+    }
+}
+const squaresGraph = new Graph();
+
+const numSquares = 160; //10x16 board...must change css to change numSquares
+const numColumns = 16;
 const startID = 0;
 const goalIDs = [159, 117, 128, 15, 32];
+const initialTime = 20;
 
 /*----- cached element references -----*/
 const $board = $('#board');
@@ -57,11 +123,11 @@ let $currentSquare //= $player.parent();
 let $goalSquare //= $(`#${setGoalPosition()}`);
 
 let solved = null;
-let timeLeft = 60;
+let timeLeft = null;
 
 /*----- dynamically building board -----*/
 
-function fillBoardWithSquares(numSquares) {
+function fillBoardWithSquares() {
     for (let i = 0; i < numSquares; i++) {
         const $newSquareEl = $(`<div id="${i}" class="square">${i}</div>`)
         console.log({$newSquareEl})
@@ -69,6 +135,48 @@ function fillBoardWithSquares(numSquares) {
     }
 }
 
+/*----- Maze Solver (computer player) -----*/
+
+
+function buildGraph() {
+    //for each square on the board, SquaresGraph.addVertex(square's id)
+    for (let i = 0; i < numSquares; i++) {
+        squaresGraph.addVertex(i);
+    }
+
+    //add edges between adjacent, available squares
+    for (let j = 0; j < squaresGraph.numberOfNodes; j++) {
+        const currentAvailable = $(`#${j}`).hasClass('available');
+
+        if (currentAvailable) {
+            const aboveAvailable = $(`#${j-numColumns}`).hasClass('available');
+            const belowAvailable = $(`#${j+numColumns}`).hasClass('available');
+            const leftAvailable = $(`#${j-1}`).hasClass('available');
+            const rightAvailable = $(`#${j+1}`).hasClass('available');
+    
+            if ( aboveAvailable && !squaresGraph.adjacentList[j].includes(j-numColumns) ) {
+                squaresGraph.addEdge(j, j-numColumns);
+            }
+    
+            if ( belowAvailable && !squaresGraph.adjacentList[j].includes(j+numColumns) ) {
+                squaresGraph.addEdge(j, j+numColumns);
+            }
+    
+            if ( j % numColumns !== 0 && leftAvailable && !squaresGraph.adjacentList[j].includes(j-1) ) {
+                squaresGraph.addEdge(j, j-1);
+            }
+    
+            if ( (j+1) % numColumns !== 0 && rightAvailable && !squaresGraph.adjacentList[j].includes(j+1) ) {
+                squaresGraph.addEdge(j, (j+1))
+            }
+        }
+    }
+    //check square by square if current & surrounding squares are 'available'
+    //if an adjacent square is available, and if an edge doesn't
+    //already exist, then add an edge between both of their adjacency lists
+
+}
+buildGraph();
 
 $board.on('click', '.square', function(evt) { //disable this event listener once I've built the maze
     //toggle 'available' class
@@ -135,42 +243,38 @@ function setGoalEmoji() {
 
 function init() {
     solved = false;
-    timeLeft = 60;
+    timeLeft = initialTime;
 
     $goalSquare = setGoalPosition();
     $goalSquare.append($goalEmoji);
     $startSquare.append($player);
-
-    render();
-
-
     startTimer(timeLeft);
-}
-
-function buildGraph() {
-    //for each square on the board, SquaresGraph.addVertex(square's id)
-
-    //check square by square if surrounding squares are 'available'
-    //if an adjacent square is available, and if an edge doesn't
-    //already exist, then add an edge between the two 
-    //in an
     
-
+    render();
 }
+
 
 function render() {
     
     $currentSquare = $player.parent(); //update currentSquare upon init & after each arrowkey down
 
-    if(solved !== true) checkSolved(); //this conditional check allows player to freeroam after they've already won without updating the status of 'solved'
+    if(solved !== true && timeLeft > 0) checkSolved(); //this conditional check allows player to freeroam after they've already won (or lost) without updating the status of 'solved'
 
 
     if (solved) {
-        $('h1').text(`You solved it with ${timeLeft} seconds to spare!`)
+        $('h1').text(`🎉 You solved it in ${initialTime - timeLeft} seconds! 🎉 `)
         $timer.remove();
         $subHeading.append($playAgainButton);
-        console.log()
+        $player.css('z-index', '1');
+        $goalEmoji.css('z-index', '1');
+        $goalSquare.text
+    } else if (timeLeft === 0) {
+        $timer.remove();
+        $subHeading.append($playAgainButton);
+        $('h1').text(`⏰ Time's up! 😥`);
+
     } else {
+        $('h1').text(`Emoji Maze`);
         $startButton.remove();
         $playAgainButton.remove();
         $subHeading.append($timer);
@@ -192,22 +296,23 @@ function setGoalPosition(squareID) {
 }
 
 function startTimer(seconds = 60) {
+    timeLeft = seconds;
+    $timer.text(timeLeft);
 
-    if(seconds === 0) {
-        //disable keydown listener
-        console.log("You lose!")
+    if(seconds === 0) { //base case(s)
+        $timer.remove();
+        $subHeading.append($playAgainButton);
+        $('h1').text(`⏰ Time's up! 😥`);
+
         return seconds;
     } else if (solved) {
         return seconds;
     }
 
-    timeLeft = seconds;
-    $timer.text(timeLeft);
-    console.log(seconds);
     seconds--;
 
     setTimeout(() => {
-        return startTimer(seconds);
+        return startTimer(seconds); //return case
     }, 1000);
 
 }
