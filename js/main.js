@@ -4,97 +4,6 @@
 //  -> squareEls should also have and 'available' class 
 
 /*----- constants -----*/
-class Graph { 
-    constructor() { 
-      this.numberOfNodes = 0;
-      this.adjacentList = {}; 
-    } 
-    addVertex(node) {
-      this.adjacentList[node] = [];
-      this.numberOfNodes++;
-    } 
-    addEdge(node1, node2) { 
-      this.adjacentList[node1].push(node2);
-      this.adjacentList[node2].push(node1);  
-    } 
-    showConnections() { 
-      const allNodes = Object.keys(this.adjacentList); 
-      for (let node of allNodes) { 
-        let nodeConnections = this.adjacentList[node]; 
-        let connections = ""; 
-        // let vertex;
-        for (let vertex of nodeConnections) {
-          connections += vertex + " ";
-        } 
-        console.log(node + "-->" + connections); 
-      } 
-    }
-    depthFirstSearch(node = 0, searchedNode, pathList = [], visitedNodes = []) {
-        //Go as far as possible down one path. Don't go to nodes we've already visited unless we have to backtrack.
-        //If dead end, we have to revisit nodes, checking their adjacentList, until you find a node you haven't visited.
-        //Don't include those dead-end nodes in the path.
-        let currentAdjacentList = this.adjacentList[node];
-        if (currentAdjacentList) { //only seach through available nodes
-
-            if (node === searchedNode) { //base case
-                pathList.push(node);
-                return;
-            }
-
-            
-            
-            visitedNodes.push(node);
-            //pathList.push(node)
-
-            let nextUnseenNode = null;
-            
-            for(let adjacentNode of currentAdjacentList) {
-                if (!visitedNodes.includes(adjacentNode)) {
-                    nextUnseenNode = adjacentNode;
-                    break;
-                }
-            }
-
-            //console.log(pathList)
-            //console.log({node, nextUnseenNode, visitedNodes})
-
-            if (!nextUnseenNode) {
-                //backtrack
-                nextUnseenNode = this.backtrack(node, currentAdjacentList, visitedNodes, pathList);
-                //console.log({backtrack: nextUnseenNode})
-            } else {
-                pathList.push(node);
-            }
-            
-            this.depthFirstSearch(nextUnseenNode, searchedNode, pathList, visitedNodes)
-        }
-        return pathList;
-    }
-    
-    //This should stop once it reaches a node that is adjacent to an unseen node.
-    //...then it returns that unseen node, not the current node
-    backtrack(currentNode, backtrackAdjacentList, visitedNodes, pathList) { 
-        //console.log({backtrackAdjacentList})
-        
-        pathList.pop();
-
-        for (let i of backtrackAdjacentList) { //looks through nodes adjacent to current node
-            for (let j of this.adjacentList[i]) { //checks if there are unseen nodes adjacent to those nodes
-                if (!visitedNodes.includes(j)) {
-                    //pathList.pop();
-                    return j;
-                }
-            }
-        }
-        
-        const previousNode = pathList[pathList.length - 1]
-        
-    
-        return this.backtrack(previousNode, this.adjacentList[previousNode], visitedNodes, pathList) //run the same check on the previous node
-    }
-}
-const squaresGraph = new Graph();
-
 const numSquares = 160; //10x16 board...must change css to change numSquares
 const numColumns = 16;
 const startID = 0;
@@ -135,8 +44,109 @@ function fillBoardWithSquares() {
     }
 }
 
-/*----- Maze Solver (computer player) -----*/
+$board.on('click', '.square', function(evt) { //disable this event listener once I've built the maze
+    //toggle 'available' class
+    console.log(evt.target); 
+    $(this).toggleClass("available");
+})
 
+/*----- Maze Solver (computer player) -----*/
+class Graph { 
+    constructor() { 
+      this.numberOfNodes = 0;
+      this.adjacentList = {}; 
+    } 
+    addVertex(node) {
+      this.adjacentList[node] = [];
+      this.numberOfNodes++;
+    } 
+    addEdge(node1, node2) { 
+      this.adjacentList[node1].push(node2);
+      this.adjacentList[node2].push(node1);  
+    } 
+    showConnections() { 
+      const allNodes = Object.keys(this.adjacentList); 
+      for (let node of allNodes) { 
+        let nodeConnections = this.adjacentList[node]; 
+        let connections = ""; 
+        // let vertex;
+        for (let vertex of nodeConnections) {
+          connections += vertex + " ";
+        } 
+        console.log(node + "-->" + connections); 
+      } 
+    }
+    depthFirstSearch(node = 0, searchedNode, pathList = [], visitedNodes = []) {
+        //Go as far as possible down one path. Don't go to nodes we've already visited unless we have to backtrack.
+        //If dead end, we have to revisit nodes, checking their adjacentList, until you find a node you haven't visited.
+        //Don't include those dead-end nodes in the path.
+        let currentAdjacentList = this.adjacentList[node];
+        if (currentAdjacentList) { //only seach through available nodes
+
+            if (node === searchedNode) { //base case
+                pathList.push(node);
+                visitedNodes.push(node);
+                return;
+            }
+
+            
+            
+            visitedNodes.push(node);
+            //pathList.push(node)
+
+            let nextUnseenNode = null;
+            
+            for(let adjacentNode of currentAdjacentList) {
+                if (!visitedNodes.includes(adjacentNode)) {
+                    nextUnseenNode = adjacentNode;
+                    break;
+                }
+            }
+
+            //console.log(pathList)
+            //console.log({node, nextUnseenNode, visitedNodes})
+
+            if (!nextUnseenNode) {
+                //backtrack
+                nextUnseenNode = this.backtrack(node, currentAdjacentList, visitedNodes, pathList);
+                console.log({backtrack: nextUnseenNode})
+            } else {
+                pathList.push(node);
+            }
+            
+            this.depthFirstSearch(nextUnseenNode, searchedNode, pathList, visitedNodes)
+        }
+        return {pathList, visitedNodes};
+    }
+    
+    //This should stop once it reaches a node that is adjacent to an unseen node.
+    //...then it returns that unseen node, not the current node
+    backtrack(currentNode, backtrackAdjacentList, visitedNodes, pathList) { 
+        //console.log({backtrackAdjacentList})
+        
+        const previousNode = pathList[pathList.length - 1]
+        visitedNodes.push(previousNode);
+
+        pathList.pop();
+
+        for (let i of backtrackAdjacentList) { //looks through nodes adjacent to current node
+            for (let j of this.adjacentList[i]) { //checks if there are unseen nodes adjacent to those nodes
+                if (!visitedNodes.includes(j)) {
+                    //pathList.pop();
+                    //console.log({j})
+                    //console.log({previousNode})
+                    return previousNode;
+                }
+            }
+        }
+        
+        
+    
+        return this.backtrack(previousNode, this.adjacentList[previousNode], visitedNodes, pathList) //run the same check on the previous node
+    }
+}
+
+const squaresGraph = new Graph();
 
 function buildGraph() {
     //for each square on the board, SquaresGraph.addVertex(square's id)
@@ -178,11 +188,26 @@ function buildGraph() {
 }
 buildGraph();
 
-$board.on('click', '.square', function(evt) { //disable this event listener once I've built the maze
-    //toggle 'available' class
-    console.log(evt.target); 
-    $(this).toggleClass("available");
-})
+
+function navigateActualPath(start, goal) {
+    const actualPath = squaresGraph.depthFirstSearch(start, goal).visitedNodes
+
+    let counter = 0;
+    
+    const idVar = setInterval(() => { //setInterval returns a var called an interval id...pass that id to clearInterval() to stop it
+        $(`#${actualPath[counter]}`).append($player)
+        render();
+
+        counter++;
+        if(counter >= actualPath.length) {
+            
+            clearInterval(idVar);
+        }
+    }, 100);
+
+}
+
+
 
 
 /*----- event listeners -----*/
@@ -250,6 +275,10 @@ function init() {
     $startSquare.append($player);
     startTimer(timeLeft);
     
+    console.log(Number($goalSquare.attr('id'))) //put this in state & $goalSquare in cached DOM
+    //console.log(squaresGraph.depthFirstSearch(0, Number($goalSquare.attr('id'))));
+    navigateActualPath(0, Number($goalSquare.attr('id')));
+
     render();
 }
 
