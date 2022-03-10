@@ -5,34 +5,32 @@
 
 /*----- constants -----*/
 const numSquares = 160; //10x16 board...must change css to change numSquares
-const numColumns = 16;
+const numColumns = 16;  //move logic depends on this...update if you change dimensions of board
 const startID = 0;
 const goalIDs = [159, 117, 128, 15, 32];
-const initialTime = 20;
+const initialTime = 15;
 
 /*----- cached element references -----*/
 const $board = $('#board');
-
 const $startSquare = $('#' + startID);
 
 const $player = $(`<div id="player" >🤠</div>`);
-//$('#0').append($player); //starting position
-
 const $goalEmoji = $('<div id="goal" >🐄</div>')
-//$('#159').append($goalEmoji);
 
-const $startButton = $('#start')
-
-const $playAgainButton = $('<button id="play-again">Play Again</button>')
 const $subHeading = $('.subheading')
+const $startButton = $('#start')
+const $playAgainButton = $('<p id="play-again" class="button">Play Again</p>')
 const $timer = $('<p id="timer"></p>')
 
 /*----- app's state (variables) -----*/
-let $currentSquare //= $player.parent();
-let $goalSquare //= $(`#${setGoalPosition()}`);
+let currentID, goalID;
+let $currentSquare, $goalSquare; 
 
 let solved = null;
 let timeLeft = null;
+
+let actualPath, prunedPath;
+let dfsSolve = true;
 
 /*----- dynamically building board -----*/
 
@@ -49,6 +47,17 @@ $board.on('click', '.square', function(evt) { //disable this event listener once
     console.log(evt.target); 
     $(this).toggleClass("available");
 })
+
+function toggleShowSquareNumbers() {
+    for (let i = 0; i < numSquares; i++) {
+        const $squareEl = $(`#${i}`);
+        if ($squareEl.text()) {
+            $squareEl.text('')
+        } else {
+            $squareEl.text(i);
+        }
+    }
+}
 
 /*----- Maze Solver (computer player) -----*/
 class Graph { 
@@ -189,30 +198,42 @@ function buildGraph() {
 buildGraph();
 
 
-function navigateActualPath(start, goal) {
-    const actualPath = squaresGraph.depthFirstSearch(start, goal).visitedNodes
+function navigatePath(path) {
 
     let counter = 0;
     
     const idVar = setInterval(() => { //setInterval returns a var called an interval id...pass that id to clearInterval() to stop it
-        $(`#${actualPath[counter]}`).append($player)
+        currentID = path[counter];
+        $currentSquare = $(`#${path[counter]}`)
+        $currentSquare.addClass("on-path")
+        $currentSquare.append($player)
         render();
 
         counter++;
-        if(counter >= actualPath.length) {
-            
+        if(counter >= path.length) {
+            $player.css('font-size', '2vmax');
+            $goalEmoji.css('font-size', '2vmax');
             clearInterval(idVar);
         }
-    }, 100);
+    }, 50);
 
 }
 
+function clearPath() {
+    if (!$startSquare.hasClass('on-path')) {
+        return;
+    }
 
+    for (let i = 0; i < numSquares; i++) {
+        $(`#${i}`).removeClass('on-path');
+    }
+}
 
 
 /*----- event listeners -----*/
 $(document).keydown(function(evt) {
     $player.removeClass("frustrated"); //clears 'frustrated' class if there is one
+
 
     const key = evt.which; //gives code for which key was pressed
 
@@ -228,7 +249,15 @@ $(document).keydown(function(evt) {
         console.log("This key was pressed: " + key)
     }
 
-    render();
+    if (goalID == currentID) { //changes size of emojis if they share the same square, regardless of win/loss
+        $player.css('font-size', '2vmax');
+        $goalEmoji.css('font-size', '2vmax');
+    } else {
+        $player.css('font-size', '2.5vmax');
+        $goalEmoji.css('font-size', '2.5vmax');
+    }
+
+    if(solved !== true && timeLeft > 0) render(); //only renders while the game is in progress
 })
 
 $('.arrows').on('click', '.arrow', function(evt) {
@@ -247,7 +276,15 @@ $('.arrows').on('click', '.arrow', function(evt) {
         console.log("This key was clicked: " + this)
     }
 
-    render();
+    if (goalID == currentID) { //changes size of emojis if they share the same square, regardless of win/loss
+        $player.css('font-size', '2vmax');
+        $goalEmoji.css('font-size', '2vmax');
+    } else {
+        $player.css('font-size', '2.5vmax');
+        $goalEmoji.css('font-size', '2.5vmax');
+    }
+
+    if(solved !== true && timeLeft > 0) render(); //only renders while the game is in progress
 })
 
 $($startButton).click(init)
@@ -267,40 +304,51 @@ function setGoalEmoji() {
 }
 
 function init() {
+    
+    clearPath();
+
     solved = false;
     timeLeft = initialTime;
-
-    $goalSquare = setGoalPosition();
+    
+    currentID = startID;
+    goalID = setGoalPosition();
+    
+    $goalSquare = $("#" + goalID);
     $goalSquare.append($goalEmoji);
     $startSquare.append($player);
+
+    
+    if (dfsSolve) {
+        actualPath = squaresGraph.depthFirstSearch(startID, goalID).visitedNodes;
+        prunedPath = squaresGraph.depthFirstSearch(startID, goalID).pathList;
+        navigatePath(prunedPath);
+    }
+
     startTimer(timeLeft);
     
-    console.log(Number($goalSquare.attr('id'))) //put this in state & $goalSquare in cached DOM
-    //console.log(squaresGraph.depthFirstSearch(0, Number($goalSquare.attr('id'))));
-    navigateActualPath(0, Number($goalSquare.attr('id')));
-
     render();
 }
 
 
 function render() {
-    
-    $currentSquare = $player.parent(); //update currentSquare upon init & after each arrowkey down
-
     if(solved !== true && timeLeft > 0) checkSolved(); //this conditional check allows player to freeroam after they've already won (or lost) without updating the status of 'solved'
 
+    const duration = initialTime - timeLeft;
 
     if (solved) {
-        $('h1').text(`🎉 You solved it in ${initialTime - timeLeft} seconds! 🎉 `)
+        $timer.removeClass('ticking');
         $timer.remove();
+        $('h1').text(`You solved it in ${duration} seconds! 🎉 🎉 `)
         $subHeading.append($playAgainButton);
-        $player.css('z-index', '1');
-        $goalEmoji.css('z-index', '1');
-        $goalSquare.text
+        
+    } else if (timeLeft < 6 && timeLeft > 0) { //weird behavior from timer animation if I put this conditional below below else if(timeLeft === 0)...TRY AGAIN LATER
+        $timer.addClass('ticking');
+
     } else if (timeLeft === 0) {
+        $timer.removeClass('ticking');
         $timer.remove();
         $subHeading.append($playAgainButton);
-        $('h1').text(`⏰ Time's up! 😥`);
+        $('h1').text(`Time's up! ⏰ 😥`);
 
     } else {
         $('h1').text(`Emoji Maze`);
@@ -308,40 +356,35 @@ function render() {
         $playAgainButton.remove();
         $subHeading.append($timer);
     }
-    //if time === 0, you lose
-    //if $goalSquare === $current, you win
-}
-
-function setStartPosition() {
 
 }
 
-function setGoalPosition(squareID) {
+
+function setGoalPosition(squareID) {  //param is optional
     if (squareID) {
         return squareID;
     }
-   
-    return $("#" + goalIDs[[Math.floor(Math.random()*goalIDs.length)]])
+
+    //sets goal state
+    goalID = goalIDs[[Math.floor(Math.random()*goalIDs.length)]];
+
+    return goalID;
 }
 
 function startTimer(seconds = 60) {
+    render();
     timeLeft = seconds;
     $timer.text(timeLeft);
 
-    if(seconds === 0) { //base case(s)
-        $timer.remove();
-        $subHeading.append($playAgainButton);
-        $('h1').text(`⏰ Time's up! 😥`);
-
-        return seconds;
-    } else if (solved) {
+    
+    if(seconds === 0 || solved) { //base case(s)
         return seconds;
     }
-
+    
     seconds--;
 
     setTimeout(() => {
-        return startTimer(seconds); //return case
+        return startTimer(seconds); //recursive case
     }, 1000);
 
 }
@@ -362,10 +405,11 @@ function startTimer(seconds = 60) {
 // }
 
 function moveLeft() {
-    const currentID = Number($currentSquare.attr('id'));
+    //currentID = Number($currentSquare.attr('id'));
     const $leftOfCurrent = $(`#${currentID - 1}`);
 
-    if (currentID % 16 !== 0 && $leftOfCurrent.hasClass('available')) {
+    if (currentID % numColumns !== 0 && $leftOfCurrent.hasClass('available')) {
+        currentID -= 1;
         $currentSquare = $leftOfCurrent;
         $currentSquare.append($player);
     } else {
@@ -378,11 +422,12 @@ function moveLeft() {
 }
 
 function moveRight() {
-    const currentID = Number($currentSquare.attr('id'));
+    //const currentID = Number($currentSquare.attr('id'));
     const $rightOfCurrent = $(`#${currentID + 1}`);
 
     console.log($rightOfCurrent)
-    if ((currentID + 1) % 16 !== 0 && $rightOfCurrent.hasClass('available')) {
+    if ((currentID + 1) % numColumns !== 0 && $rightOfCurrent.hasClass('available')) {
+        currentID += 1;
         $currentSquare = $rightOfCurrent;
         $currentSquare.append($player);
     } else {
@@ -396,10 +441,11 @@ function moveRight() {
 }
 
 function moveUp() {
-    const $aboveCurrent = $(`#${Number($currentSquare.attr('id')) - 16}`);
+    const $aboveCurrent = $(`#${currentID - numColumns}`);
 
     console.log($aboveCurrent)
     if ($aboveCurrent.hasClass('available')) {
+        currentID -= numColumns;
         $currentSquare = $aboveCurrent;
         $currentSquare.append($player);
     } else {
@@ -412,10 +458,11 @@ function moveUp() {
 }
 
 function moveDown() {
-    const $belowCurrent = $(`#${Number($currentSquare.attr('id')) + 16}`);
+    const $belowCurrent = $(`#${currentID + numColumns}`);
 
     console.log($belowCurrent)
     if ($belowCurrent.hasClass('available')) {
+        currentID += numColumns;
         $currentSquare = $belowCurrent;
         $currentSquare.append($player);
     } else {
@@ -427,12 +474,8 @@ function moveDown() {
     }   
 }
 
-function resetGame() {
-    
-}
-
 function checkSolved() {
-    if ($currentSquare.attr('id') === $goalSquare.attr('id')) {
+    if (currentID === goalID) {
         solved = true;
     } else {
         solved = false;
@@ -445,5 +488,3 @@ function promptRotateMobileDevice () {
 }
 
 
-//Starts the game
-//init();
