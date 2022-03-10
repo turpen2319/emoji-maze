@@ -6,6 +6,8 @@
 html, body {
     height: 100vh;
     margin: 0;
+    background: rgb(17,70,158);
+    background: linear-gradient(3deg, rgba(17,70,158,1) 0%, rgba(61,130,246,1) 52%, rgba(79,143,255,1) 100%);
 }
 
 
@@ -14,7 +16,8 @@ body, header {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: rgb(64, 45, 173);
+    
+    /* background-color: #062726; */
 }
 
 header {
@@ -44,6 +47,7 @@ h1 {
 .button:hover{
     color:#000000;
     background-color:white;
+    cursor: pointer;
 }
 
 #timer {
@@ -65,7 +69,6 @@ footer {
 }
 
 
-/* flexbox */
 .arrows {
     display: flex;
     flex-direction: column;
@@ -134,8 +137,9 @@ body > footer > div > div.left-down-right-container {
     max-width: 90%;
     height: 65%;
     border: 2px solid;
-    padding: 2vmin;
+    padding: 1vmin;
     border-radius: 2vmin;
+    background-color: rgb(221, 221, 221);
 }
 /* fixed aspect-ratio maintains order of each square */
 
@@ -150,18 +154,19 @@ body > footer > div > div.left-down-right-container {
     width: 6.25%;
     min-height: 10%; 
     aspect-ratio: 1/1;
-    background-color: darkgray;
+    background: rgb(24,104,236);
+    background: linear-gradient(3deg, rgba(24,104,236,1) 0%, rgba(61,130,246,1) 22%, rgba(79,143,255,1) 75%);
     border-radius: 0.6vmin;
 }
 /* height & width depend on number of elements...if 80 els, h:12.5% w:10% will allow 8 rows of 10... */
 /* min height keeps squares the same size even when there is nothing occupying the squares*/
 
 .available {
-    background-color: white;
+    background: white;
 }
 
 .on-path {
-    background-color: darkred;
+    background-color: #A40E4C;
 }
 
 #player, #goal {
@@ -172,7 +177,7 @@ body > footer > div > div.left-down-right-container {
 
 
 .ticking {
-    transform: scale(1.3);
+    transform: scale(1);
     animation: ticking 1s infinite;
     font-weight: bold;
 }
@@ -186,6 +191,7 @@ body > footer > div > div.left-down-right-container {
     50% {
         transform: scale(1.3);
         font-weight: bold;
+        color: #C84630
     }
     100% {
         transform: scale(1);
