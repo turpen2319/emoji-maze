@@ -266,7 +266,7 @@ $(document).keydown(function(evt) {
         $goalEmoji.css('font-size', '2.5vmax');
     }
 
-    if(solved !== true && timeLeft > 0) render(); //only renders while the game is in progress
+    if(solved !== true && timeLeft && timeLeft > 0) render(); //only renders while the game is in progress
 })
 
 $('.arrows').on('click', '.arrow', function(evt) {
@@ -290,7 +290,7 @@ $('.arrows').on('click', '.arrow', function(evt) {
         $goalEmoji.css('font-size', '2.5vmax');
     }
 
-    if(solved !== true && timeLeft > 0) render(); //only renders while the game is in progress
+    if(solved !== true && timeLeft && timeLeft > 0) render(); //only renders while the game is in progress
 })
 
 $($startButton).click(function() {
@@ -350,6 +350,7 @@ function init() {
 
     clearBoard();
 
+    timeLeft = null;
     solved = false;
     
     currentID = startID;
