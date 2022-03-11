@@ -180,6 +180,8 @@ footer {
     -moz-user-select: none; /* Firefox */
     -ms-user-select: none; /* Internet Explorer/Edge */
     -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation; 
+    /* disables zoom on double tap */
 }
 
 .up-container {
