@@ -74,32 +74,36 @@ class Graph {
       this.numberOfNodes = 0;
       this.adjacentList = {}; 
     } 
+
     addVertex(node) {
       this.adjacentList[node] = [];
       this.numberOfNodes++;
     } 
+
     addEdge(node1, node2) { 
       this.adjacentList[node1].push(node2);
       this.adjacentList[node2].push(node1);  
     } 
+
     showConnections() { 
       const allNodes = Object.keys(this.adjacentList); 
       for (let node of allNodes) { 
         let nodeConnections = this.adjacentList[node]; 
         let connections = ""; 
-        // let vertex;
         for (let vertex of nodeConnections) {
           connections += vertex + " ";
         } 
         console.log(node + "-->" + connections); 
       } 
     }
+
     depthFirstSearch(node = 0, searchedNode, pathList = [], visitedNodes = []) {
         //Go as far as possible down one path. Don't go to nodes we've already visited unless we have to backtrack.
-        //If dead end, we have to revisit nodes, checking their adjacentList, until you find a node you haven't visited.
-        //Don't include those dead-end nodes in the path.
+        //If dead end, we have to revisit nodes, checking their adjacentLists, until we find a node we haven't visited.
+        //Don't include those dead-end nodes in the pathList, but everytime we visit a node (even if visited before) we must add it to visitedNodes.
+
         let currentAdjacentList = this.adjacentList[node];
-        if (currentAdjacentList) { //only seach through available nodes
+        if (currentAdjacentList) { //only search through available nodes
 
             if (node === searchedNode) { //base case
                 pathList.push(node);
@@ -110,7 +114,7 @@ class Graph {
             
             
             visitedNodes.push(node);
-            //pathList.push(node)
+            
 
             let nextUnseenNode = null;
             
@@ -121,13 +125,11 @@ class Graph {
                 }
             }
 
-            //console.log(pathList)
-            //console.log({node, nextUnseenNode, visitedNodes})
+
 
             if (!nextUnseenNode) {
                 //backtrack
                 nextUnseenNode = this.backtrack(node, currentAdjacentList, visitedNodes, pathList);
-                console.log({backtrack: nextUnseenNode})
             } else {
                 pathList.push(node);
             }
@@ -137,10 +139,8 @@ class Graph {
         return {pathList, visitedNodes};
     }
     
-    //This should stop once it reaches a node that is adjacent to an unseen node.
-    //...then it returns that unseen node, not the current node
+    
     backtrack(currentNode, backtrackAdjacentList, visitedNodes, pathList) { 
-        //console.log({backtrackAdjacentList})
         
         const previousNode = pathList[pathList.length - 1]
         visitedNodes.push(previousNode);
@@ -150,15 +150,10 @@ class Graph {
         for (let i of backtrackAdjacentList) { //looks through nodes adjacent to current node
             for (let j of this.adjacentList[i]) { //checks if there are unseen nodes adjacent to those nodes
                 if (!visitedNodes.includes(j)) {
-                    //pathList.pop();
-                    //console.log({j})
-                    //console.log({previousNode})
                     return previousNode;
                 }
             }
         }
-        
-        
     
         return this.backtrack(previousNode, this.adjacentList[previousNode], visitedNodes, pathList) //run the same check on the previous node
     }
@@ -308,7 +303,6 @@ $('.arrows').on('click', '.arrow', function(evt) {
 
 $($startButton).click(function() {
     init();
-    // $startSquare.append($player);
     $goalSquare.append($goalEmoji);
     startTimer(initialTime);
 
@@ -454,7 +448,6 @@ function moveLeft() {
         $currentSquare = $leftOfCurrent;
         $currentSquare.append($player);
     } else {
-        console.log("Can't move left.")
         $player.addClass('frustrated')
         setTimeout(() => { 
             $player.removeClass('frustrated') 
@@ -465,14 +458,12 @@ function moveLeft() {
 function moveRight() {
     const $rightOfCurrent = $(`#${currentID + 1}`);
 
-    console.log($rightOfCurrent)
+    
     if ((currentID + 1) % numColumns !== 0 && $rightOfCurrent.hasClass('available')) {
         currentID += 1;
         $currentSquare = $rightOfCurrent;
         $currentSquare.append($player);
     } else {
-        $player.toggleClass('frustrated');
-        console.log("Can't move right.")
         $player.addClass('frustrated')
         setTimeout(() => {
             $player.removeClass('frustrated')
@@ -483,13 +474,11 @@ function moveRight() {
 function moveUp() {
     const $aboveCurrent = $(`#${currentID - numColumns}`);
 
-    console.log($aboveCurrent)
     if ($aboveCurrent.hasClass('available')) {
         currentID -= numColumns;
         $currentSquare = $aboveCurrent;
         $currentSquare.append($player);
     } else {
-        console.log("Can't move above.")
         $player.addClass('frustrated')
         setTimeout(() => {
             $player.removeClass('frustrated')
@@ -500,13 +489,11 @@ function moveUp() {
 function moveDown() {
     const $belowCurrent = $(`#${currentID + numColumns}`);
 
-    console.log($belowCurrent)
     if ($belowCurrent.hasClass('available')) {
         currentID += numColumns;
         $currentSquare = $belowCurrent;
         $currentSquare.append($player);
     } else {
-        console.log("Can't move down.")
         $player.addClass('frustrated')
         setTimeout(() => {
             $player.removeClass('frustrated')
