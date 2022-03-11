@@ -109,6 +109,10 @@ nav > h1 {
 }
 
 #dijkstra, #bfs {
+    pointer-events: none;
+}
+
+.locked {
     cursor: not-allowed;
 }
 
