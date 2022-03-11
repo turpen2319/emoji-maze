@@ -5,6 +5,7 @@
 
 html, body {
     height: 100vh;
+    max-height: 100vh;
     margin: 0;
     background: rgb(17,70,158);
     background: linear-gradient(3deg, rgba(17,70,158,1) 0%, rgba(61,130,246,1) 52%, rgba(79,143,255,1) 100%);
@@ -16,8 +17,96 @@ body, header {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    width: 100vw;
     
     /* background-color: #062726; */
+}
+
+#menu-button {
+    align-self: flex-start;
+    border-radius: 1em;
+    border: solid transparent;
+    margin: 1vmax;
+    font-size: 2vh;
+    height: fit-content;
+    width: fit-content;
+}
+
+#menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 1em;
+    max-width: 1vmax;
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    margin: 3px;
+    background: #fff;
+    border-radius: 50%;
+    display: block;
+}
+
+nav {
+    /* toggle to flex! */
+    display: flex; 
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,1);
+    background: rgb(0,0,0);
+    background: linear-gradient(180deg, rgba(0,0,0,0.969625350140056) 9%, rgba(0,0,0,0.9612219887955182) 14%, rgba(0,0,0,0.8883928571428571) 100%);
+    background: linear-gradient(180deg, rgba(17,70,158,10.969625350140056) 0%, rgba(61,130,246,0.9612219887955182) 52%, rgba(79,143,255,0.888) 100%);
+    padding: 10px;
+    line-height: 28px;
+    text-align: justify;
+    position: absolute;
+    bottom: 0;
+    margin: 0;
+    height: 100vh;
+    width: 100vw;
+    font-size: 4vmin;
+    transition: height .5s;
+    z-index: 20;
+}
+
+.hide-nav {
+    display: none;
+}
+
+nav > h1 {
+    justify-self: flex-start;
+}
+
+.human-players, .ai-players, .human-players > div {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+}
+
+.ai-players > div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 80%;
+}
+
+.emoji {
+    font-size: 15vmin;
+}
+
+.emoji:hover {
+    cursor: pointer;
+}
+
+#dijkstra, #dfs, #bfs {
+    margin-bottom: 3vmin;
+    margin-top: 4vmin;
 }
 
 header {
@@ -136,27 +225,25 @@ body > footer > div > div.left-down-right-container {
     flex-wrap: wrap;
     max-width: 90%;
     height: 65%;
-    border: 2px solid;
-    padding: 1vmin;
+    padding: 2vmin;
     border-radius: 2vmin;
     background-color: rgb(221, 221, 221);
 }
-/* fixed aspect-ratio maintains order of each square */
+
 
 .square {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
-    outline: solid 1px;
-    outline-offset: -1px;
-    height: 10%;
+    outline: solid 0.1px;
+    max-height: 10%;
+    min-height: 10%;
     width: 6.25%;
-    min-height: 10%; 
+    min-width: 6.25%;
     aspect-ratio: 1/1;
-    background: rgb(24,104,236);
-    background: linear-gradient(3deg, rgba(24,104,236,1) 0%, rgba(61,130,246,1) 22%, rgba(79,143,255,1) 75%);
-    border-radius: 0.6vmin;
+    background-color: darkgray;
+    border-radius: 0.8vmin;
 }
 /* height & width depend on number of elements...if 80 els, h:12.5% w:10% will allow 8 rows of 10... */
 /* min height keeps squares the same size even when there is nothing occupying the squares*/
@@ -166,7 +253,12 @@ body > footer > div > div.left-down-right-container {
 }
 
 .on-path {
-    background-color: #A40E4C;
+    background: rgb(24,104,236);
+    background: linear-gradient(0deg, rgba(24,104,236,1) 0%, rgba(61,130,246,1) 22%, rgba(79,143,255,1) 75%);
+}
+
+.path-emoji {
+    font-size: 2vmin;
 }
 
 #player, #goal {
