@@ -306,6 +306,7 @@ $($startButton).click(function() {
 $($subHeading).on('click', '#play-again', function() {
     init();
     $goalSquare.append($goalEmoji);
+    $timer.removeClass('ticking');
     startTimer(initialTime);
     if (dfsSolve) {navigatePath(actualPath);}
     render();
@@ -378,7 +379,7 @@ function render() {
         $subHeading.append($playAgainButton);
         $subHeading.append($newCharacterButton);
         
-    } else if (timeLeft < 6 && timeLeft > 0) { //weird behavior from timer animation if I put this conditional below below else if(timeLeft === 0)...revisit later
+    } else if (!solved && timeLeft < 6 && timeLeft > 0) { //weird behavior from timer animation if I put this conditional below below else if(timeLeft === 0)...revisit later
         $timer.addClass('ticking');
 
     } else if (timeLeft === 0) {
