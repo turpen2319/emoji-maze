@@ -45,14 +45,11 @@ let dfsSolve = false;
 function fillBoardWithSquares() {
     for (let i = 0; i < numSquares; i++) {
         const $newSquareEl = $(`<div id="${i}" class="square">${i}</div>`)
-        console.log({$newSquareEl})
         $board.append($newSquareEl);
     }
 }
 
 // $board.on('click', '.square', function(evt) { //UNCOMMENT TO MODIFY BOARD PATHS VIA CLICKS!!!
-//     //toggle 'available' class
-//     console.log(evt.target); 
 //     $(this).toggleClass("available");
 // })
 
@@ -259,8 +256,6 @@ $(document).keydown(function(evt) {
         moveUp();
     } else if (key === 40) {
         moveDown();
-    } else {
-        console.log("This key was pressed: " + key)
     }
 
     if (goalID == currentID) { //changes size of emojis if they share the same square, regardless of win/loss
@@ -276,7 +271,6 @@ $(document).keydown(function(evt) {
 
 $('.arrows').on('click', '.arrow', function(evt) {
     $player.removeClass("frustrated"); //clears 'frustrated' class if there is one
-    console.log(this)
 
     if (this.id === 'left') {
         moveLeft();
@@ -286,8 +280,6 @@ $('.arrows').on('click', '.arrow', function(evt) {
         moveUp();
     } else if (this.id === 'down') {
         moveDown();
-    } else {
-        console.log("This key was clicked: " + this)
     }
 
     if (goalID == currentID) { //changes size of emojis if they share the same square, regardless of win/loss
@@ -312,7 +304,6 @@ $($startButton).click(function() {
 });
 
 $($subHeading).on('click', '#play-again', function() {
-    console.log(this)
     init();
     $goalSquare.append($goalEmoji);
     startTimer(initialTime);
@@ -326,7 +317,6 @@ $($subHeading).on('click', '#new-character', function() {
 
 $($nav).on('click', '.emoji', function() {
     const $clickedEmoji = $(this)
-    console.log($clickedEmoji)
     playerEmoji = $clickedEmoji.text();
     setGoalEmoji();
     
