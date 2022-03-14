@@ -114,14 +114,14 @@ class Graph {
             
 
             let nextUnseenNode = null;
-            
+
+            //see if current node is next to any unvisited nodes
             for(let adjacentNode of currentAdjacentList) {
                 if (!visitedNodes.includes(adjacentNode)) {
                     nextUnseenNode = adjacentNode;
                     break;
                 }
             }
-
 
 
             if (!nextUnseenNode) {
@@ -142,7 +142,7 @@ class Graph {
         const previousNode = pathList[pathList.length - 1]
         visitedNodes.push(previousNode);
 
-        pathList.pop();
+        pathList.pop(); //if previous node is adj to an unseen node, it will be added back to the pathList in the main function
 
         for (let i of backtrackAdjacentList) { //looks through nodes adjacent to current node
             for (let j of this.adjacentList[i]) { //checks if there are unseen nodes adjacent to those nodes

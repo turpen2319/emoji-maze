@@ -301,3 +301,9 @@ body > footer > div > div.left-down-right-container {
     50% {transform: translate(-10%, 0);}
     100% {transform: translate(10%, 0);}
 }
+
+@media only screen and (max-width: 600px) {
+    .square {
+        content: '\200b';
+    }
+}
